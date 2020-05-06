@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<!--    <com.xuexiang.xui.widget.actionbar.TitleBar-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="60dp"/>-->
+
+
+    <com.xuexiang.xui.widget.actionbar.TitleBar
+        android:layout_width="match_parent"
+        android:id="@+id/tb_user_info"
+        app:tb_titleText="用户资料"
+        app:tb_leftImageResource="@mipmap/icon_back_white"
+        app:tb_useThemeColor="false"
+        android:layout_height="50dp"
+        android:background="@color/app_color_theme_5"
+        />
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        android:id="@+id/super_user_info"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:layout_marginTop="20dp"
+        app:sCenterViewGravity="left_center"
+        app:sDividerLineType="both"
+        app:sCenterTopTextString="这里是名字"
+        app:sLeftBottomTextSize="14sp"
+        app:sLeftIconRes="@drawable/head_pic"
+        app:sCenterTextString="企业："
+        app:sCenterBottomTextString="手机："
+        app:sCenterTopTextSize="18sp"
+        app:sLeftViewGravity="left_center"
+
+        />
+
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        style="@style/InfoItem.Account"
+        android:layout_marginTop="20dp"
+        app:sLeftTextString="动态" />
+
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        style="@style/InfoItem.Account"
+        app:sLeftTextString="更多信息"
+ />
+
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        style="@style/InfoItem.Account"
+        android:layout_height="70dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/stv_to_chat"
+        app:sCenterTextSize="16sp"
+        app:sCenterTextString="去聊天" />
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        style="@style/InfoItem.Account"
+        android:layout_marginTop="5dp"
+        android:layout_height="70dp"
+        android:id="@+id/stv_to_audio"
+        app:sCenterTextSize="16sp"
+        app:sCenterTextString="去语音" />
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        style="@style/InfoItem.Account"
+        android:id="@+id/stv_to_video"
+        android:layout_marginTop="5dp"
+        android:layout_height="70dp"
+        app:sCenterTextSize="16sp"
+        app:sCenterTextString="去视频" />
+    <!--<FrameLayout
+        android:layout_width="match_parent"
+        android:background="@color/xui_config_color_gray_7"
+        android:layout_height="270dp"
+        >
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="fitXY"
+            android:src="@mipmap/bg11111"/>
+
+        <com.xuexiang.xui.widget.imageview.RadiusImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:src="@drawable/img_beautiful_scenery"
+            app:riv_border_color="@color/xui_config_color_gray_6"
+            app:riv_border_width="1px"
+            app:riv_is_circle="true"
+            app:riv_selected_border_color="@color/xui_config_color_gray_4"
+            app:riv_selected_border_width="1px"
+            app:riv_selected_mask_color="@color/xui_config_color_gray_8"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="吴曦"
+            android:textSize="24sp"
+            android:layout_marginTop="170dp"
+            android:layout_gravity="center_horizontal"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暴扣有限责任公司"
+            android:textSize="24sp"
+            android:layout_marginTop="200dp"
+            android:layout_gravity="center_horizontal"/>
+
+
+
+
+    </FrameLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="40dp"
+            android:layout_width="350dp"
+            android:layout_height="40dp"
+            style="@style/SuperButton.Green"
+            android:textColor="@color/xui_config_color_black"
+            android:textSize="18sp"
+            android:text="发送消息" />
+        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_width="350dp"
+            android:layout_height="40dp"
+            style="@style/SuperButton.Green"
+            android:textColor="@color/xui_config_color_black"
+            android:textSize="18sp"
+            android:text="语音邀请" />
+        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="30dp"
+            android:layout_width="350dp"
+            android:layout_height="40dp"
+            style="@style/SuperButton"
+
+            android:textColor="@color/xui_config_color_black"
+            android:textSize="18sp"
+            android:text="视频邀请" />
+    </LinearLayout>-->
+
+
+</LinearLayout>

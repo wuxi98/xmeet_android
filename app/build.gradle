@@ -1,0 +1,133 @@
+apply plugin: 'com.android.application'
+apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'com.mob.sdk'
+
+MobSDK {
+    appKey "2eb8c7dbf3000"
+    appSecret "f89672cd248cbd4989eea74d98dd1999"
+    SMSSDK {}
+}
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        applicationId "cn.nchu.wuxi.xlivemeet"
+        minSdkVersion 19
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        multiDexEnabled true
+        /*externalNativeBuild {
+            cmake {
+                cppFlags ""
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }*/
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86"
+        }
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+//    sourceSets {
+//        main {
+//            res.srcDirs =
+//                    [
+//                            'src/main/res/layout/webrtc',
+//                            //下面两个是固定兼容写法
+//                            'src/main/res/layout',
+//                            'src/main/res'
+//                    ]
+//        }
+//    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.github.xuexiangjys:XUI:1.1.3'
+    implementation 'com.github.xuexiangjys.XPage:xpage-lib:2.2.9'
+    implementation 'com.github.xuexiangjys.XRouter:xrouter-runtime:1.0.1'
+    implementation 'com.github.xuexiangjys.XUtil:xutil-core:1.1.7'
+    implementation 'com.github.xuexiangjys.XAOP:xaop-runtime:1.0.5x'
+    implementation 'com.github.xuexiangjys.XOrmlite:xormlite-runtime:1.0.1'
+    annotationProcessor 'com.github.xuexiangjys.XOrmlite:xormlite-compiler:1.0.1'
+    implementation 'com.github.xuexiangjys.SmartRefreshLayout:refresh-header:1.1.5'
+    implementation 'com.github.xuexiangjys.SmartRefreshLayout:refresh-layout:1.1.5'
+
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.1.0-beta01'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
+
+    // https://mvnrepository.com/artifact/com.jakewharton/butterknife
+    implementation 'com.jakewharton:butterknife:9.0.0'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:9.0.0'
+
+    // https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.10.0'
+
+    // http调试
+    implementation 'com.facebook.stetho:stetho:1.5.0'
+    // 网络操作--有网络操作添加
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+
+    //Gson
+    // https://mvnrepository.com/artifact/com.google.code.gson/gson
+    implementation group: 'com.google.code.gson', name: 'gson', version: '2.8.5'
+
+    //vitamio
+//    implementation project(':vitamio')
+
+    //yasea
+    implementation project(':yasea')
+
+    //webrtc
+    implementation project(':module_meeting')
+
+    //webrtc
+    implementation project(path: ':module_p2pchat')
+
+    //bilibili的ljkplayer
+    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.3'
+
+    //websocket
+    implementation "org.java-websocket:Java-WebSocket:1.4.0"
+
+    //glide加载图片
+    implementation 'com.github.bumptech.glide:glide:4.5.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'
+
+    implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.5.2'
+  //  implementation 'com.github.xuexiangjys.PictureSelector:picture-core:1.0.5'
+
+   // implementation 'cn.jiguang.imui:messagelist:0.8.0'
+    implementation 'cc.fussen:cachelibrary:1.5.0'
+
+    implementation 'com.github.stfalcon:chatkit:0.3.3'
+
+    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+
+
+
+}

@@ -1,0 +1,58 @@
+package cn.nchu.wuxi.xlivemeet.adpter;
+
+import android.content.Context;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import java.util.List;
+
+import cn.nchu.wuxi.xlivemeet.R;
+import cn.nchu.wuxi.xlivemeet.adpter.entity.RoomInfo;
+
+public class MeetRoomAdapter extends ArrayAdapter<RoomInfo> {
+
+    private int resourceId;
+
+    // 适配器的构造函数，把要适配的数据传入这里
+    public MeetRoomAdapter(Context context, int textViewResourceId, List<RoomInfo> objects){
+        super(context,textViewResourceId,objects);
+        resourceId=textViewResourceId;
+    }
+
+    @NonNull
+    @Override
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        RoomInfo item = getItem(position);
+
+
+        View view;
+        ViewHolder viewHolder;
+        if (convertView==null){
+
+            // 避免ListView每次滚动时都要重新加载布局，以提高运行效率
+            view= LayoutInflater.from(getContext()).inflate(resourceId,parent,false);
+
+            // 避免每次调用getView()时都要重新获取控件实例
+            viewHolder=new ViewHolder();
+            viewHolder.roomName=view.findViewById(R.id.tv_room_name);
+
+            // 将ViewHolder存储在View中（即将控件的实例存储在其中）
+            view.setTag(viewHolder);
+        } else{
+            view=convertView;
+            viewHolder=(ViewHolder) view.getTag();
+        }
+        viewHolder.roomName.setText(item.getRoomName());
+        return view;
+    }
+    class ViewHolder{
+        TextView roomName;
+    }
+}

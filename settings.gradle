@@ -1,0 +1,2 @@
+rootProject.name='XLiveMeet'
+include ':app', ':module_p2pchat', ':yasea', 'libwebrtc', ':module_meeting'

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <com.xuexiang.xui.widget.actionbar.TitleBar
+            android:layout_width="match_parent"
+            android:id="@+id/tb_chat_view"
+            app:tb_leftImageResource="@mipmap/icon_back_white"
+            app:tb_useThemeColor="false"
+            android:layout_height="50dp"
+            android:background="@color/app_color_theme_5"
+            />
+        <com.stfalcon.chatkit.messages.MessagesList
+            android:id="@+id/messagesList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/input" />
+    </LinearLayout>
+    <com.stfalcon.chatkit.messages.MessageInput
+        android:id="@+id/input"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        app:attachmentButtonBackground="@color/white"
+        android:layout_alignParentBottom="true"
+        app:inputBackground="@color/cornflower_blue_light_40"
+        android:layout_marginBottom="10dp"
+        app:inputHint="" />
+
+</FrameLayout>

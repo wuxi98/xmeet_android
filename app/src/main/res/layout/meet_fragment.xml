@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<!--    <Button-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:id="@+id/btn__login_meet"-->
+<!--        android:layout_height="60dp"-->
+<!--        android:layout_marginTop="60dp"-->
+<!--        android:text="连接弹幕服务器"/>-->
+<!--    <LinearLayout
+        android:id="@+id/lin_are1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                style="@style/Button.Blue"
+                android:text="语音请求"/>
+            <Button
+                android:id="@+id/btn_invite_video"
+                android:layout_width="wrap_content"
+                style="@style/Button.Blue"
+                android:onClick="invite_video"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="视频请求"/>
+        </LinearLayout>
+        <Button
+            android:layout_width="match_parent"
+            android:id="@+id/btn_create_room"
+            android:layout_height="60dp"
+            style="@style/Button.Primary"
+            android:text="创建会议房间"/>
+        <ListView
+            android:id="@+id/lin_room_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        </ListView>
+    </LinearLayout>-->
+
+</FrameLayout>

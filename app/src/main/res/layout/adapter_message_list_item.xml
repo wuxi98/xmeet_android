@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        android:id="@+id/msg_item"
+        android:layout_width="match_parent"
+        app:sLeftBottomTextSize="14sp"
+        app:sLeftBottomTextColor="@color/xui_config_color_gray_7"
+        android:layout_height="70dp"/>
+
+</FrameLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_height="60dp">
+
+    <TextView
+        android:id="@+id/apply_user"
+        android:layout_width="0dp"
+        android:layout_weight="3"
+        android:background="@color/xui_config_color_light_blue_gray"
+        android:gravity="center"
+        android:layout_height="match_parent"/>
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:layout_gravity="right"
+        android:orientation="horizontal">
+        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
+            android:id="@+id/btn_accept"
+            style="@style/SuperButton.Blue"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@color/xui_config_color_light_blue"
+            android:text="同意"/>
+        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
+            android:id="@+id/btn_reject"
+            style="@style/SuperButton.Primary"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@color/xui_config_color_red"
+            android:text="拒绝"/>
+        <com.xuexiang.xui.widget.textview.supertextview.SuperButton
+        android:background="@color/xui_btn_green_normal_color"
+        android:id="@+id/btn_res"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+</LinearLayout>
