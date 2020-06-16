@@ -3,6 +3,7 @@ package cn.nchu.wuxi.xlivemeet;
 import android.app.Application;
 import android.content.Context;
 
+
 import androidx.multidex.MultiDex;
 import androidx.recyclerview.widget.SortedList;
 
@@ -14,6 +15,7 @@ import com.xuexiang.xutil.XUtil;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.Author;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.MyMessage;
 import cn.nchu.wuxi.xlivemeet.utils.CrashHandler;
+import cn.nchu.wuxi.xlivemeet.utils.OwnUncaughtExceptionHandler;
 
 public class XMeetApp extends Application {
     private static XMeetApp app;
@@ -54,7 +56,8 @@ public class XMeetApp extends Application {
         MobSDK.init(this);
         MobSDK.submitPolicyGrantResult(true, null);
         //打印崩溃日志
-        CrashHandler.getInstance().init(getApplicationContext());
+       // CrashHandler.getInstance().init(getApplicationContext());
+        Thread.setDefaultUncaughtExceptionHandler(new OwnUncaughtExceptionHandler());
 
         //FaceBook调试器,可在Chrome调试网络请求,查看SharePreferences,数据库等
         Stetho.initializeWithDefaults(this);

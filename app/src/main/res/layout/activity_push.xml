@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="250dp"
-
         android:id="@+id/fl_group"
         >
+
 
         <net.ossrs.yasea.SrsCameraView
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
-<!--        <ProgressBar-->
-<!--            android:id="@+id/pb_progressbar"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_centerInParent="true"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:visibility="visible"/>-->
+        <cn.nchu.wuxi.xlivemeet.core.component.BarrageView
+            android:id="@+id/bv"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:layout_height="match_parent" />
+
         <Button
             android:id="@+id/btn_video_back"
             android:layout_width="30dp"
@@ -81,13 +81,7 @@
                     style="@style/Button.Radius"
                     android:layout_weight="1"
                     android:text="@string/switch_cam"/>
-                <Button
-                    android:id="@+id/push_pause"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    style="@style/Button.Radius"
-                    android:text="@string/pause"/>
+
                 <Button
                     android:id="@+id/push_switch_encoder"
                     android:layout_width="wrap_content"
@@ -98,18 +92,36 @@
 
             </LinearLayout>
 
-            <TextView
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="20dp"-->
+<!--                android:id="@+id/room_ownerName"-->
+<!--                android:background="@color/xui_config_color_gray_7"-->
+<!--                android:text="主播:"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:id="@+id/room_content"-->
+<!--                android:background="@color/xui_config_color_gray_7"-->
+<!--                android:text="直播信息:"/>-->
+            <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+                android:id="@+id/stv_live_info"
+                app:sBackgroundDrawableRes="@color/xui_config_color_gray_7"
+                app:sLeftIconRes="@drawable/head_pic"
+                app:sLeftTopTextString=""
+                app:sLeftBottomTextString="主播公告："
+                app:sLeftTopTextSize="18sp"
+                app:sLeftBottomTextSize="14sp"
+
+                app:sRightBottomTextColor="@color/xui_config_color_blue"
+                app:sRightTopTextColor="@color/xui_config_color_blue"
+                app:sRightTopTextIsBold="true"
+                app:sRightBottomTextIsBold="true"
+                app:sRightTopTextString="修改信息"
+                app:sRightBottomTextString="上传封面"
+                app:sEnableEdit="true"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:id="@+id/room_ownerName"
-                android:background="@color/xui_config_color_gray_7"
-                android:text="主播:"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:id="@+id/room_content"
-                android:background="@color/xui_config_color_gray_7"
-                android:text="直播信息:"/>
+                android:layout_height="80dp"/>
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
@@ -136,6 +148,8 @@
             android:layout_height="40dp"
             android:gravity="bottom"
             android:layout_marginBottom="10dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:orientation="horizontal">
             <EditText
                 android:layout_width="0dp"

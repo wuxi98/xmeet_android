@@ -50,11 +50,11 @@
                     app:sRightIconRes="@drawable/icon_arrow_right_red"
                     app:sRightViewMarginRight="0dp" />
 
-                <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
-                    style="@style/InfoItem.Account"
-                    app:sLeftTextString="账号与安全"
-                    app:sRightTextString="已保护"
-                    app:sRightTvDrawableLeft="@drawable/icon_crown" />
+<!--                <com.xuexiang.xui.widget.textview.supertextview.SuperTextView-->
+<!--                    style="@style/InfoItem.Account"-->
+<!--                    app:sLeftTextString="账号与安全"-->
+<!--                    app:sRightTextString="已保护"-->
+<!--                    app:sRightTvDrawableLeft="@drawable/icon_crown" />-->
 
                 <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
                     style="@style/InfoItem.Account"

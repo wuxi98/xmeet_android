@@ -2,6 +2,7 @@
 
 package cn.nchu.wuxi.xlivemeet.utils;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -51,6 +52,13 @@ public final class Utils {
      */
     public static PictureSelectionModel getPictureSelector(Fragment fragment) {
         return PictureSelector.create(fragment)
+                .openGallery(PictureMimeType.ofImage())
+                .loadImageEngine(GlideEngine.createGlideEngine())
+                .theme(R.style.picture_default_style);
+
+    }
+    public static PictureSelectionModel getPictureSelector22(Activity activity) {
+        return PictureSelector.create(activity)
                 .openGallery(PictureMimeType.ofImage())
                 .loadImageEngine(GlideEngine.createGlideEngine())
                 .theme(R.style.picture_default_style);

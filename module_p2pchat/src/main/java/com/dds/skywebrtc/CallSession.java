@@ -76,7 +76,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     public boolean mIsAudioOnly;
     public String mTargetId;
     public String mRoom;
-    public String mRoomName;
     public String mMyId;
     public boolean mIsComing;
     public EnumType.CallState _callState = EnumType.CallState.Idle;
@@ -100,10 +99,10 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     // ----------------------------------------各种控制--------------------------------------------
 
     // 创建房间
-    public void createHome(String room, String roomName, int roomSize) {
+    public void createHome(String room, int roomSize) {
         executor.execute(() -> {
             if (avEngineKit.mEvent != null) {
-                avEngineKit.mEvent.createRoom(room, roomName, roomSize);
+                avEngineKit.mEvent.createRoom(room, roomSize);
             }
         });
     }
@@ -171,7 +170,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
                 avEngineKit.mEvent.sendLeave(mRoom, mMyId);
             }
         });
-        Log.d("release","离开房间");
         release();
 
     }
@@ -265,7 +263,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
     }
 
     private void release() {
-
         networkMonitor.removeObserver(this);
         executor.execute(() -> {
             if (audioManager != null) {
@@ -292,10 +289,10 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
                 captureAndroid = null;
             }
 
-            if(_localStream != null) _localStream.dispose();
-            if(_remoteStream != null) _remoteStream.dispose();
+            _localStream.dispose();
+            _remoteStream.dispose();
             // 关闭peer
-            if(mPeer != null) mPeer.close();
+            mPeer.close();
 
             // 释放画布
             if (surfaceTextureHelper != null) {
@@ -324,7 +321,7 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
         startTime = 0;
         audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
         networkMonitor.addObserver(this);
-        Log.e("CallSession.class","iscoming值为-->"+mIsComing);
+        Log.e("wuxi","isComing="+mIsComing);
         executor.execute(() -> {
             mMyId = myId;
             // todo 多人会议
@@ -391,7 +388,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
                 mPeer = new Peer(CallSession.this, userId);
                 mPeer.addLocalStream(_localStream);
             } catch (Exception e) {
-                e.printStackTrace();
                 Log.e(TAG, e.toString());
             }
             // 关闭响铃
@@ -412,7 +408,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
     // 对方已拒绝
     public void onRefuse(String userId) {
-        Log.d("release","对方拒绝");
         release();
     }
 
@@ -475,7 +470,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
     // 对方离开房间
     public void onLeave(String userId) {
-        Log.d("release","对方离开房间");
         release();
     }
 
@@ -663,10 +657,6 @@ public class CallSession implements NetworkMonitor.NetworkObserver {
 
     public void setRoom(String _room) {
         this.mRoom = _room;
-    }
-
-    public void setRoomName(String mRoomName) {
-        this.mRoomName = mRoomName;
     }
 
     public EnumType.CallState getState() {

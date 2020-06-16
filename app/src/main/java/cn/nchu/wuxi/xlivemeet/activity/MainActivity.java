@@ -25,6 +25,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.dds.skywebrtc.CallSession;
+import com.dds.skywebrtc.EnumType;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
@@ -32,6 +35,7 @@ import com.google.gson.reflect.TypeToken;
 import com.xuexiang.xui.adapter.FragmentAdapter;
 import com.xuexiang.xui.utils.ResUtils;
 import com.xuexiang.xui.widget.imageview.RadiusImageView;
+import com.xuexiang.xui.widget.textview.badge.Badge;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,7 +55,9 @@ import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.Message;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.RealMessage;
 import cn.nchu.wuxi.xlivemeet.bean.JsonReturn;
 import cn.nchu.wuxi.xlivemeet.core.BaseFragment;
+import cn.nchu.wuxi.xlivemeet.core.chat.ChatSocketListener;
 import cn.nchu.wuxi.xlivemeet.core.chat.ChatWsManager;
+import cn.nchu.wuxi.xlivemeet.core.chat.InitSocketThread;
 import cn.nchu.wuxi.xlivemeet.fragment.LiveFragment;
 import cn.nchu.wuxi.xlivemeet.fragment.MeetFragment;
 import cn.nchu.wuxi.xlivemeet.fragment.MessageFragment;
@@ -59,8 +65,9 @@ import cn.nchu.wuxi.xlivemeet.fragment.ProfileFragment;
 import cn.nchu.wuxi.xlivemeet.utils.HttpUtil;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
 import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
-import cn.nchu.wuxi.xlivemeet.webrtc.Utils;
+import cn.nchu.wuxi.xlivemeet.webrtc.MeetContainer;
 import cn.nchu.wuxi.xlivemeet.webrtc.socket.SocketManager;
+import cn.nchu.wuxi.xlivemeet.webrtc.voip.VoipEvent;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -101,6 +108,9 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
     private String phone;
     public Handler handler = new Handler(Looper.getMainLooper());
 
+    public int unReadNum;
+    public Badge badge;
+
 
 
     @Override
@@ -126,16 +136,25 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         //登陆聊天服务器
         ChatWsManager.init();
         wsManger = ChatWsManager.getInstance();
-        wsManger.connectChat();
-        wsManger.getListener().setPhone(phone);
+        //使用okhttp创建websocket连接netty
+//        wsManger.connectChat();
+//        wsManger.getListener().setPhone(phone);
+       // new InitSocketThread(phone).start();
 
+        //使用java-webSocket创建websocket连接netty
+        wsManger.connect(phone);
         //登陆视频会议服务器
         SocketManager.getInstance().connect(
-                Utils.WEBSOCKET_URL,
+                MeetContainer.WEBSOCKET_URL,
                 phone,
-                Utils.DEVICE);
+                MeetContainer.DEVICE);
 
-       // initChatData();
+        //初始化一对一视频服务器以及session状态
+        SkyEngineKit.init(new VoipEvent());
+        CallSession currentSession;
+        if((currentSession = SkyEngineKit.Instance().getCurrentSession())!=null)
+            currentSession.setCallState(EnumType.CallState.Idle);
+        // initChatData();
         initViews();
         initHeader();
         initFragment();
@@ -223,9 +242,13 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
                         editor.remove("phone");
                         editor.remove("nickName");
                         editor.remove("enterpriseId");
+                        editor.remove("enterpriseName");
                         editor.remove("live_rome_id");
                         editor.putString("login","0");
                         editor.apply();
+                        ChatSocketListener socket;
+                        if((socket = wsManger.getWebSocket()) != null)
+                        socket.close();
 //                        Intent intent = new Intent(MainActivity.this,LoginActivity.class);
 //                        startActivity(intent);
                         finish();

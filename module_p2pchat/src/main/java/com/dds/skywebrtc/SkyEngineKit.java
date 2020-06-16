@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Created by dds on 2019/8/19.
  */
 public class SkyEngineKit {
     private final static String TAG = "dds_AVEngineKit";
@@ -33,6 +33,7 @@ public class SkyEngineKit {
     // 初始化
     public static void init(ISkyEvent iSocketEvent) {
         if (avEngineKit == null) {
+
             avEngineKit = new SkyEngineKit();
             avEngineKit.mEvent = iSocketEvent;
 
@@ -92,38 +93,7 @@ public class SkyEngineKit {
         mCurrentCallSession.setIsComing(false);
         mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
         // 创建房间
-        mCurrentCallSession.createHome(room, "",2);
-        return true;
-    }
-
-    // 创建房间
-    public boolean createHome(Context context,
-                                final String room,
-                                final String roomName,
-                                final boolean audioOnly) {
-        // 未初始化
-        if (avEngineKit == null) {
-            Log.e(TAG, "startOutCall error,please init first");
-            return false;
-        }
-        // 忙线中
-        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
-            Log.i(TAG, "startCall error,currentCallSession is exist");
-            return false;
-        }
-        // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
-        mCurrentCallSession.setContext(context);
-        mCurrentCallSession.setIsAudioOnly(audioOnly);
-        mCurrentCallSession.setRoom(room);
-        mCurrentCallSession.setRoomName(roomName);
-        mCurrentCallSession.setIsComing(true);
-        mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
-        // 创建房间
-        Log.e("SkyEngineKit.class","isComing的值-->"+mCurrentCallSession.mIsComing);
-        System.out.println("SkyEngineKit.class:"+"isComing的值-->"+mCurrentCallSession.mIsComing);
-        mCurrentCallSession.createHome(room, roomName,9);
-        joinRoom(context,room,audioOnly);
+        mCurrentCallSession.createHome(room, 2);
         return true;
     }
 
@@ -162,32 +132,6 @@ public class SkyEngineKit {
         return true;
     }
 
-    //加入房间
-    public boolean joinRoom(Context context,
-                                final String room,
-                                final boolean audioOnly) {
-        // 未初始化
-        if (avEngineKit == null) {
-            Log.e(TAG, "joinRoom error,please init first");
-            return false;
-        }
-        // 忙线中
-        if (mCurrentCallSession != null && mCurrentCallSession.getState() != EnumType.CallState.Idle) {
-            Log.i(TAG, "joinRoom error,currentCallSession is exist");
-            return false;
-        }
-        // 初始化会话
-        mCurrentCallSession = new CallSession(avEngineKit, context, audioOnly);
-        mCurrentCallSession.setContext(context);
-        mCurrentCallSession.setIsAudioOnly(audioOnly);
-        mCurrentCallSession.setRoom(room);
-        mCurrentCallSession.setIsComing(true);
-        mCurrentCallSession.setCallState(EnumType.CallState.Outgoing);
-        // 创建房间
-        mCurrentCallSession.joinHome();
-        return true;
-    }
-
     // 挂断会话
     public void endCall() {
         if (mCurrentCallSession != null) {
@@ -197,20 +141,16 @@ public class SkyEngineKit {
             if (mCurrentCallSession.mIsComing) {
                 if (mCurrentCallSession.getState() == EnumType.CallState.Incoming) {
                     // 接收到邀请，还没同意，发送拒绝
-                    Log.d("endCall","接收到邀请，还没同意，发送拒绝");
                     mCurrentCallSession.sendRefuse();
                 } else {
                     // 已经接通，挂断电话
-                    Log.d("endCall","已经接通，挂断电话1");
                     mCurrentCallSession.leave();
                 }
             } else {
                 if (mCurrentCallSession.getState() == EnumType.CallState.Outgoing) {
-                    Log.d("endCall","======");
                     mCurrentCallSession.sendCancel();
                 } else {
                     // 已经接通，挂断电话
-                    Log.d("endCall","已经接通，挂断电话2");
                     mCurrentCallSession.leave();
                 }
             }

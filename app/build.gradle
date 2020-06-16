@@ -9,12 +9,20 @@ MobSDK {
 }
 
 android {
+    signingConfigs {
+        xmeet {
+            storeFile file('D:\\myrec\\xmeet.jks')
+            storePassword '123456'
+            keyAlias = 'key0'
+            keyPassword '123456'
+        }
+    }
     compileSdkVersion 28
 
 
     defaultConfig {
         applicationId "cn.nchu.wuxi.xlivemeet"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -37,6 +45,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.xmeet
         }
     }
     compileOptions {
@@ -127,6 +136,12 @@ dependencies {
     implementation 'com.github.stfalcon:chatkit:0.3.3'
 
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
+
+    // https://mvnrepository.com/artifact/androidx.multidex/multidex
+    implementation group: 'androidx.multidex', name: 'multidex', version: '2.0.1'
+
+    implementation 'com.anbetter:danmukulight:1.0.1'
+
 
 
 

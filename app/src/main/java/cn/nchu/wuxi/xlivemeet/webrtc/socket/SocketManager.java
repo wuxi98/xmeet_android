@@ -20,7 +20,7 @@ import javax.net.ssl.TrustManager;
 
 import cn.nchu.wuxi.xlivemeet.XMeetApp;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
-import cn.nchu.wuxi.xlivemeet.webrtc.Utils;
+import cn.nchu.wuxi.xlivemeet.webrtc.MeetContainer;
 import cn.nchu.wuxi.xlivemeet.webrtc.voip.VoipReceiver;
 
 /**
@@ -114,9 +114,9 @@ public class SocketManager implements IEvent {
 
 
     // ======================================================================================
-    public void createRoom(String room,String roomName, int roomSize) {
+    public void createRoom(String room, int roomSize) {
         if (webSocket != null) {
-            webSocket.createRoom(room, roomName, roomSize, myId);
+            webSocket.createRoom(room, roomSize, myId);
         }
 
     }
@@ -201,7 +201,7 @@ public class SocketManager implements IEvent {
         intent.putExtra("audioOnly", audioOnly);
         intent.putExtra("inviteId", inviteId);
         intent.putExtra("userList", userList);
-        intent.setAction(Utils.ACTION_VOIP_RECEIVER);
+        intent.setAction(MeetContainer.ACTION_VOIP_RECEIVER);
         intent.setComponent(new ComponentName(XMeetApp.getInstance().getPackageName(), VoipReceiver.class.getName()));
         // 发送广播
         XMeetApp.getInstance().sendBroadcast(intent);

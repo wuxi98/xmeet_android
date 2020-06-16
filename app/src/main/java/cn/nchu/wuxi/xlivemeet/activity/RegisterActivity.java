@@ -49,6 +49,8 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     RoundButton reg_return_login;
     @BindView(R.id.btn_get_verify_code)
     RoundButton btn_get_verify_code;
+    @BindView(R.id.et_verify_code)
+    MaterialEditText et_verify_code;
 
     private CountDownButtonHelper mCountDownHelper;
 
@@ -69,7 +71,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     break;
                 case VERIFY_SUCCESS:
                     Log.i("mob", "验证通过");
-                    doRegister(phone, password, password2);
+                    doRegister(phone, password);
                     break;
                 case VERIFY_FAIL:
                     Log.i("mob", "验证失败");
@@ -82,6 +84,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     private String password2;
     private String password;
     private String phone;
+
 
 
     @Override
@@ -101,18 +104,18 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         phone = reg_username.getText().toString().trim();
         password = reg_password.getText().toString().trim();
         password2 = reg_password2.getText().toString().trim();
-        verifyCode = btn_get_verify_code.getText().toString().trim();
+        verifyCode = et_verify_code.getText().toString().trim();
         LogUtil.d(RegisterActivity.class,"p1 = "+ password+",p2="+password2);
         switch (view.getId()){
             case R.id.button_ensure_register:
                 if (TextUtils.isEmpty(phone) || TextUtils.isEmpty(password) || TextUtils.isEmpty(password2)) {
-                    Toast.makeText(RegisterActivity.this, "各项均不能为空", Toast.LENGTH_SHORT).show();
-                    return;
+                        Toast.makeText(RegisterActivity.this, "各项均不能为空", Toast.LENGTH_SHORT).show();
+                        return;
                 }
                 if (!password.equals(password2)) {
-                    ToastUtil.normal("两次输入的密码不一样");
-                    return;
-                }
+                ToastUtil.normal("两次输入的密码不一样");
+                return;
+            }
                 SMSSDK.registerEventHandler(new EventHandler() {
                     public void afterEvent(int event, int result, Object data) {
                         if (result == SMSSDK.RESULT_COMPLETE) {
@@ -134,6 +137,8 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                     }
                 });
 // 触发操作
+                Log.i("mob","verifyCode="+verifyCode);
+                Log.i("mob","verifyCode.length="+verifyCode.length());
                 SMSSDK.submitVerificationCode("86", phone, verifyCode);
                 break;
             case R.id.return_login:
@@ -160,6 +165,10 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                 if (i1 == SMSSDK.RESULT_COMPLETE) {
                     handler.sendEmptyMessage(SEND_SUCCESS);
                 } else {
+                    Log.i("mob","event="+i);
+                    Log.i("mob","result="+i1);
+                    Throwable t = (Throwable)o;
+                    Log.i("mob","data->"+t.getMessage());
                     handler.sendEmptyMessage(SEND_FAIL);
                 }
             }
@@ -168,7 +177,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         mCountDownHelper.start();
     }
 
-    private void doRegister(String phone, String password, String password2){
+    private void doRegister(String phone, String password){
                 HttpUtil.registerWithOkHttp(phone, password, new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {

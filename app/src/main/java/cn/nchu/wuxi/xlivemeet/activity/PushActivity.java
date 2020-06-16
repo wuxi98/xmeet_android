@@ -1,16 +1,21 @@
 package cn.nchu.wuxi.xlivemeet.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
+import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -23,9 +28,27 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
+import com.anbetter.danmuku.DanMuView;
+import com.anbetter.danmuku.model.DanMuModel;
+import com.anbetter.danmuku.model.utils.DimensionUtil;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.github.faucamp.simplertmp.RtmpHandler;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.entity.LocalMedia;
+import com.xuexiang.xui.widget.dialog.DialogLoader;
+import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog;
+import com.xuexiang.xui.widget.dialog.strategy.InputInfo;
+import com.xuexiang.xui.widget.textview.supertextview.SuperTextView;
 
 import net.ossrs.yasea.SrsCameraView;
 import net.ossrs.yasea.SrsEncodeHandler;
@@ -46,9 +69,12 @@ import cn.nchu.wuxi.xlivemeet.adpter.entity.TLiveRome;
 import cn.nchu.wuxi.xlivemeet.bean.DanmuBean;
 import cn.nchu.wuxi.xlivemeet.bean.JsonReturn;
 import cn.nchu.wuxi.xlivemeet.core.BaseActivity;
+import cn.nchu.wuxi.xlivemeet.core.component.BarrageView;
+import cn.nchu.wuxi.xlivemeet.fragment.ProfileFragment;
 import cn.nchu.wuxi.xlivemeet.utils.HttpUtil;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
 import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
+import cn.nchu.wuxi.xlivemeet.utils.Utils;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -82,8 +108,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
     Button push_publish;
     @BindView(R.id.push_switch_cam)
     Button push_switch_cam;
-    @BindView(R.id.push_pause)
-    Button push_pause;
+
     @BindView(R.id.push_switch_encoder)
     Button push_switch_encoder;
 
@@ -95,17 +120,22 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
     EditText et_danmu;
     @BindView(R.id.send_danmu)
     Button btn_send_danmu;
-    @BindView(R.id.room_content)
-    TextView tv_room_content;
-    @BindView(R.id.room_ownerName)
-    TextView tv_room_ownerName;
+//    @BindView(R.id.room_content)
+//    TextView tv_room_content;
+//    @BindView(R.id.room_ownerName)
+//    TextView tv_room_ownerName;
+    @BindView(R.id.stv_live_info)
+    SuperTextView stv_live_info;
+    @BindView(R.id.bv)
+    BarrageView danmuView;
+
     private String roomOwnerName;
     private String room_content;
     private PushActivity context;
     private WebSocket socket;
     private String userName;
     private int roomId;
-
+    private String headUrl;
 
 
     @Override
@@ -113,27 +143,17 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
         return R.layout.activity_push;
     }
 
-    Handler mHandler=new Handler(){
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case 100:
-                    btn_full_screen.setVisibility(View.GONE);
-                    btn_play_video.setVisibility(View.GONE);
-                    btn_video_back.setVisibility(View.GONE);
-                    break;
+    Handler mHandler=new Handler(Looper.getMainLooper());
 
-                default:
-                    break;
-            }
-
-        };
-    };
-
+    void setInvisibility(){
+        if(btn_full_screen != null) btn_full_screen.setVisibility(View.GONE);
+        if(btn_play_video != null) btn_play_video.setVisibility(View.GONE);
+        if(btn_video_back != null) btn_video_back.setVisibility(View.GONE);
+    }
     @Override
     public void init(Bundle savedInstanceState) {
         context = this;
         initPushData();
-        initView();
         initSurfaceView();
         initListener();
 
@@ -143,8 +163,6 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
     }
 
     private void initView() {
-//        tv_room_content.setText(String.format("%s%s", tv_room_content.getText(), room_content));
-//        tv_room_ownerName.setText(String.format("%s%s", tv_room_ownerName.getText(), roomOwnerName));
         HttpUtil.getRoomInfo(roomId, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -163,15 +181,15 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                         if(res.getData().size() == 0){
                             try {
                                 registerRoom();
-                                Thread.sleep(1500);
-                                initView();
-                            } catch (IOException | InterruptedException e) {
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
                         }else{
                             TLiveRome rome = res.getData().get(0);
-                            tv_room_content.setText(String.format("%s%s", tv_room_content.getText(),rome.getContent()));
-                            tv_room_ownerName.setText(String.format("%s%s", tv_room_ownerName.getText(),rome.getOwnerName()));
+//                            tv_room_content.setText(String.format("%s%s", tv_room_content.getText(),rome.getContent()));
+//                            tv_room_ownerName.setText(String.format("%s%s", tv_room_ownerName.getText(),rome.getOwnerName()));
+                            stv_live_info.setLeftTopString(String.format("%s",rome.getOwnerName()));
+                            stv_live_info.setLeftBottomString(String.format("%s%s", "主播公告:",rome.getContent()));
                         }
 
                     }
@@ -198,6 +216,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                         editor.putInt("live_room_id", customer.getLiveRomeId());
                         editor.apply();
                         roomId = customer.getLiveRomeId();
+                        initView();
                     }else {
                         LogUtil.e(PushActivity.class,obj.getMessage());
 //                        ToastUtil.normal(obj.getMessage());
@@ -215,6 +234,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
         sp = getSharedPreferences("user",MODE_PRIVATE);
         roomId = sp.getInt("live_rome_id",0);
         userName = sp.getString("nickName","用户某某某");
+        headUrl = sp.getString("head_url",null);
         if (roomId == 0){
             try {
                 registerRoom();
@@ -222,11 +242,11 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                 e.printStackTrace();
             }
         }else {
+            initView();
         }
     }
 
     private void initSurfaceView() {
-        push_pause.setEnabled(false);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mPublisher = new SrsPublisher(cameraView);
         mPublisher.setEncodeHandler(new SrsEncodeHandler(this));
@@ -237,22 +257,82 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
         mPublisher.switchToHardEncoder();
         mPublisher.setVideoHDMode();
         mPublisher.startCamera();
-        mHandler.sendMessageDelayed(mHandler.obtainMessage(100), 3000);
+        mHandler.postDelayed(this::setInvisibility,3000);
+
     }
 
     private void initListener() {
         btn_full_screen.setOnClickListener(this);
         btn_video_back.setOnClickListener(this);
         push_publish.setOnClickListener(this);
-        push_pause.setOnClickListener(this);
         push_switch_cam.setOnClickListener(this);
         push_switch_encoder.setOnClickListener(this);
         btn_send_danmu.setOnClickListener(this);
+        stv_live_info.setRightTopTvClickListener(textView ->
+                        showDialog("输入主播公告", (dialogInterface, i) -> {
+                            dialogInterface.dismiss();
+                            if (dialogInterface instanceof MaterialDialog) {
+                                String s = ((MaterialDialog) dialogInterface).getInputEditText().getText().toString();
+
+                                HttpUtil.updateLiveNotice(roomId, s, new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        ToastUtil.normal("修改失败");
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        mHandler.post(context::initView);
+
+
+                                    }
+                                });
+                            }
+                        }));
+
+        stv_live_info.setRightBottomTvClickListener(textView ->
+                Utils.getPictureSelector22(this)
+                        .enableCrop(true)
+                        .setCircleDimmedColor(R.color.picture_color_grey_3e)
+                        .setCircleStrokeWidth(3)
+                        .selectionMode(PictureConfig.SINGLE)
+                        .maxSelectNum(1)
+                        .isCamera(true)
+                        .minSelectNum(1)
+                        .setLanguage(0)
+                        .circleDimmedLayer(false)
+                        .withAspectRatio(4,3)
+                        .showCropFrame(true)
+                        .showCropGrid(false)
+                        .isDragFrame(true)
+                        .freeStyleCropEnabled(true)
+                        .previewImage(true)
+                        .compress(true)
+                        .forResult(PictureConfig.CHOOSE_REQUEST));
 
     }
+
+
+
     private void initPlayer() {
     }
     private void initPublisher() {
+        //设置图片圆角角度
+        RoundedCorners roundedCorners= new RoundedCorners(90);
+        //通过RequestOptions扩展功能
+        RequestOptions options=RequestOptions.bitmapTransform(roundedCorners).override(170, 170);
+        Glide.with(context)
+                .load(headUrl)
+                .fallback(R.drawable.head_pic)
+                .placeholder(R.drawable.head_pic)
+                .error(R.drawable.head_red)
+                .apply(options)
+                .into(new SimpleTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @androidx.annotation.Nullable Transition<? super Drawable> transition) {
+                        stv_live_info.setLeftIcon(resource);
+                    }
+                });
     }
 
 
@@ -267,7 +347,19 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        mPublisher.stopPublish();
+        mPublisher.stopPublish();
+        HttpUtil.changeRoomState(roomId, "offline", new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+            }
+        });
+
   //      mPublisher.stopRecord();
     }
 
@@ -288,7 +380,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
             case MotionEvent.ACTION_DOWN:
                 btn_video_back.setVisibility(View.VISIBLE);
                 btn_full_screen.setVisibility(View.VISIBLE);
-                mHandler.sendEmptyMessageDelayed(100, 3000);
+                mHandler.postDelayed(this::setInvisibility, 3000);
                 break;
 
             default:
@@ -365,7 +457,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                     push_publish.setText(R.string.stop_publish);
                     push_publish.setBackgroundColor(Color.parseColor("#FF00FF"));
                     push_switch_encoder.setEnabled(false);
-                    push_pause.setEnabled(true);
+                    //push_pause.setEnabled(true);
                     HttpUtil.changeRoomState(roomId, "online", new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -387,7 +479,6 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                     push_publish.setBackgroundColor(Color.parseColor("#FFFFFF"));
                    // btnRecord.setText("record");
                     push_switch_encoder.setEnabled(true);
-                    push_pause.setEnabled(false);
                     HttpUtil.changeRoomState(roomId, "offline", new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -399,15 +490,6 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
 
                         }
                     });
-                }
-                break;
-            case R.id.push_pause:
-                if(push_pause.getText().toString().equals(R.string.pause)){
-                    mPublisher.pausePublish();
-                    push_pause.setText(R.string.resume);
-                }else{
-                    mPublisher.resumePublish();
-                    push_pause.setText(R.string.pause);
                 }
                 break;
             case R.id.push_switch_cam:
@@ -433,6 +515,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
     }
 
     void initDanme(){
+
         HttpUtil.connectDanmu(new WebSocketListener() {
             //线程池
             ExecutorService writeExecutor = Executors.newSingleThreadExecutor();
@@ -490,7 +573,12 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                 case 1:
                     TextView danmu = new TextView(context);
                     danmu.setText((String) msg.obj);
-                    lin_danmu_area.addView(danmu);
+                    if(lin_danmu_area!=null) lin_danmu_area.addView(danmu);
+                    if(null != danmuView) {
+
+                        String s = (String) msg.obj;
+                        danmuView.addTextitem((s.substring(s.indexOf(":")+1)));
+                    }
                     break;
                 case 2:
                     // LogUtil.d(PlayerActivity.class,"已连接上，添加新弹幕");
@@ -498,7 +586,7 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
                     TextView tip = new TextView(context);
                     tip.setTextColor(Color.YELLOW);
                     tip.setText((String) msg.obj);
-                    lin_danmu_area.addView(tip);
+                    if(lin_danmu_area!=null) lin_danmu_area.addView(tip);
             }
             super.handleMessage(msg);
         }
@@ -613,6 +701,57 @@ public class PushActivity extends BaseActivity  implements RtmpHandler.RtmpListe
     public void onRecordIOException(IOException e) {
 
     }
+
+    void showDialog(String tip, DialogInterface.OnClickListener listener){
+        DialogLoader.getInstance().showInputDialog(
+                this,
+                R.drawable.icon_tip,
+                getString(R.string.tip_info),
+                tip,
+                new InputInfo(InputType.TYPE_CLASS_TEXT,
+                        tip),
+                null,
+                getString(R.string.ensure),
+                listener,
+                getString(R.string.lab_cancel),
+                null);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @androidx.annotation.Nullable Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST:
+                    LocalMedia image = PictureSelector.obtainMultipleResult(data).get(0);
+                    String path = image.getCutPath();
+                    uploadPage(path);
+                    break;
+                default:
+                    break;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    private void uploadPage(String path) {
+        String[] split = path.split("/");
+        String fileName = split[split.length-1];
+        HttpUtil.uploadPage(path, fileName, roomId, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ToastUtil.normal("上传封面成功");
+                    }
+                });
+
+            }
+        });
+    }
+
 
 
 }

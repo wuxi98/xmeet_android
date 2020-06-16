@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.IpSecManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -22,7 +24,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.xuexiang.xui.widget.textview.supertextview.SuperTextView;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -33,11 +44,15 @@ import javax.annotation.Nullable;
 import butterknife.BindView;
 import cn.nchu.wuxi.xlivemeet.R;
 import cn.nchu.wuxi.xlivemeet.bean.DanmuBean;
+import cn.nchu.wuxi.xlivemeet.bean.JsonReturn;
 import cn.nchu.wuxi.xlivemeet.core.BaseActivity;
+import cn.nchu.wuxi.xlivemeet.core.component.BarrageView;
 import cn.nchu.wuxi.xlivemeet.utils.HttpUtil;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
 import cn.nchu.wuxi.xlivemeet.utils.OKHttpSingleton;
 import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -68,10 +83,14 @@ public class PlayerActivity extends BaseActivity implements SurfaceHolder.Callba
     SurfaceView surfaceView;
     @BindView(R.id.fl_group)
     FrameLayout fl_group;
-    @BindView(R.id.room_content)
-    TextView tv_room_content;
-    @BindView(R.id.room_ownerName)
-    TextView tv_room_ownerName;
+    @BindView(R.id.bv)
+    BarrageView barrageView;
+//    @BindView(R.id.room_content)
+//    TextView tv_room_content;
+//    @BindView(R.id.room_ownerName)
+   // TextView tv_room_ownerName;
+    @BindView(R.id.stv_live_info)
+    SuperTextView stv_live_info;
     @BindView(R.id.send_danmu)
     Button btn_send_danmu;
     @BindView(R.id.et_danmu)
@@ -86,7 +105,8 @@ public class PlayerActivity extends BaseActivity implements SurfaceHolder.Callba
     private WebSocket socket = null;
     private PlayerActivity context;
     private SharedPreferences sp;
-
+    private String ownerPhone;
+    private String headUrl;
 
 
     @Override
@@ -104,10 +124,15 @@ public class PlayerActivity extends BaseActivity implements SurfaceHolder.Callba
         //接收name值
         roomId = bundle.getInt("roomId");
         roomOwnerName = bundle.getString("roomOwnerName","主播某某某");
+        ownerPhone = bundle.getString("ownerPhone","0");
         room_content = bundle.getString("roomInfo");
       //  ToastUtil.normal("房间号为"+roomId);
         //getActionBar().hide();
         context = this;
+        new Thread( ()->
+                Glide.get(this).clearDiskCache()
+        ).start();
+        Glide.get(this).clearMemory();
         initView();
         initSurfaceView();
         initListener();
@@ -118,8 +143,44 @@ public class PlayerActivity extends BaseActivity implements SurfaceHolder.Callba
     }
 
     private void initView() {
-        tv_room_content.setText(String.format("%s%s", tv_room_content.getText(), room_content));
-        tv_room_ownerName.setText(String.format("%s%s", tv_room_ownerName.getText(), roomOwnerName));
+        stv_live_info.setLeftTopString(String.format("%s", roomOwnerName));
+        stv_live_info.setLeftBottomString(String.format("%s%s", "主播公告：", room_content));
+        HttpUtil.getHeadUrl(ownerPhone, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String s = response.body().string();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JsonReturn<String> res = new Gson().fromJson(s,new TypeToken<JsonReturn<String>>(){}.getType());
+                        if(res.isSuccess()){
+                            headUrl = res.getData().get(0);
+                            LogUtil.d(PlayerActivity.class,"headurl->"+headUrl);
+                            RoundedCorners roundedCorners= new RoundedCorners(90);
+                            //通过RequestOptions扩展功能
+                            RequestOptions options=RequestOptions.bitmapTransform(roundedCorners).override(170, 170);
+                            Glide.with(context)
+                                    .load(headUrl)
+                                    .fallback(R.drawable.head_pic)
+                                    .placeholder(R.drawable.head_pic)
+                                    .error(R.drawable.head_red)
+                                    .apply(options)
+                                    .into(new SimpleTarget<Drawable>() {
+                                        @Override
+                                        public void onResourceReady(@NonNull Drawable resource, @androidx.annotation.Nullable Transition<? super Drawable> transition) {
+                                            stv_live_info.setLeftIcon(resource);
+                                        }
+                                    });
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void initListener() {
@@ -446,7 +507,11 @@ public class PlayerActivity extends BaseActivity implements SurfaceHolder.Callba
                 case 1:
                     TextView danmu = new TextView(context);
                     danmu.setText((String) msg.obj);
-                    lin_danmu_area.addView(danmu);
+                   if(lin_danmu_area!=null) lin_danmu_area.addView(danmu);
+                    if(null != barrageView) {
+                        String s = (String) msg.obj;
+                        barrageView.addTextitem((s.substring(s.indexOf(":")+1)));
+                    }
                     break;
                 case 2:
                    // LogUtil.d(PlayerActivity.class,"已连接上，添加新弹幕");
@@ -454,7 +519,7 @@ public class PlayerActivity extends BaseActivity implements SurfaceHolder.Callba
                     TextView tip = new TextView(context);
                     tip.setTextColor(Color.YELLOW);
                     tip.setText((String) msg.obj);
-                    lin_danmu_area.addView(tip);
+                    if(lin_danmu_area!=null) lin_danmu_area.addView(tip);
             }
             super.handleMessage(msg);
         }

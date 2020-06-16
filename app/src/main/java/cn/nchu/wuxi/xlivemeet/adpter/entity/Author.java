@@ -35,4 +35,13 @@ public class Author implements IUser,Serializable {
         this.name = name;
         this.avatar = avatar;
     }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", avatar='" + avatar + '\'' +
+                '}';
+    }
 }

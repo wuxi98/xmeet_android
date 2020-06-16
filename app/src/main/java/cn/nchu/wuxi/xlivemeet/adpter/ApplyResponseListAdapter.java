@@ -123,7 +123,7 @@ public class ApplyResponseListAdapter extends BaseRecyclerAdapter<TEnterpriseJoi
         boolean isSelected = position == mSelectPosition;
      //   expandableLayout.setExpanded(isSelected, false);
 
-        holder.text(R.id.apply_user,item.getPhone());
+        holder.text(R.id.apply_user,String.format("%s(%s)",item.getApplyName(),item.getPhone()));
         if(item.getState() == 0){
             holder.click(R.id.btn_accept, new View.OnClickListener() {
                 @Override

@@ -12,6 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import com.bumptech.glide.Glide;
+import com.xuexiang.xui.XUI;
 import com.xuexiang.xui.widget.imageview.RadiusImageView;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public class LiveRoomAdapter extends RecyclerView.Adapter<LiveRoomAdapter.RoomVi
     private OnRecyclerItemClickListener monItemClickListener;
 
 
-    public LiveRoomAdapter(List<TLiveRome > data) {
+    public LiveRoomAdapter(Context context, List<TLiveRome > data) {
         this.list = data;
     }
 
@@ -56,6 +58,9 @@ public class LiveRoomAdapter extends RecyclerView.Adapter<LiveRoomAdapter.RoomVi
         //将数据和控件绑定
         holder.room_name.setText(list.get(position).getRomeName());
         holder.user_name.setText(list.get(position).getOwnerName());
+        Glide.with(XUI.getContext())
+                .load(list.get(position).getPicUrl())
+                .into(holder.imageView);
     }
 
     @Override

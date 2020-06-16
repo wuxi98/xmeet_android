@@ -91,6 +91,7 @@ public class EnterpriseManageActivity extends BaseActivity {
                                             null,
                                             getString(R.string.ensure),
                                             (dialogInterface, i) -> {
+                                                dialogInterface.dismiss();
                                                 if (dialogInterface instanceof MaterialDialog) {
                                                     String s = ((MaterialDialog) dialogInterface).getInputEditText()
                                                             .getText().toString();
@@ -157,10 +158,10 @@ public class EnterpriseManageActivity extends BaseActivity {
                                                                     ToastUtil.normal("您已经是企业用户了");
                                                                     return;
                                                                 }
-                                                                ToastUtil.debug("" +
-                                                                        "" +
-                                                                        "" +
-                                                                        "申请"+item.getEnterpriseName());
+//                                                                ToastUtil.debug("" +
+//                                                                        "" +
+//                                                                        "" +
+//                                                                        "申请"+item.getEnterpriseName());
                                                                 view = (Button)view;
 
                                                                 ((Button) view).setText("已申请");

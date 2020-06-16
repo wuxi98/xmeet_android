@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="250dp"
-
         android:id="@+id/fl_group"
         >
+
 
         <SurfaceView
             android:id="@+id/surfaceView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <cn.nchu.wuxi.xlivemeet.core.component.BarrageView
+            android:id="@+id/bv"
+            android:layout_width="match_parent"
+            android:layout_gravity="center"
+            android:layout_height="match_parent" />
         <ProgressBar
             android:id="@+id/pb_progressbar"
             android:layout_width="wrap_content"
@@ -57,6 +63,7 @@
         android:orientation="vertical"
         >
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -64,18 +71,27 @@
             android:orientation="vertical"
             android:layout_gravity="top">
 
-            <TextView
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="20dp"-->
+<!--                android:id="@+id/room_ownerName"-->
+<!--                android:background="@color/xui_config_color_gray_7"-->
+<!--                android:text="主播:"/>-->
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="60dp"-->
+<!--                android:id="@+id/room_content"-->
+<!--                android:background="@color/xui_config_color_gray_7"-->
+<!--                android:text="直播信息:"/>-->
+            <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+                android:id="@+id/stv_live_info"
+                app:sBackgroundDrawableRes="@color/xui_config_color_gray_7"
+                app:sLeftIconRes="@drawable/head_pic"
+                app:sLeftTopTextString=""
+                app:sLeftTopTextSize="18sp"
+                app:sLeftBottomTextSize="14sp"
                 android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:id="@+id/room_ownerName"
-                android:background="@color/xui_config_color_gray_7"
-                android:text="主播:"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:id="@+id/room_content"
-                android:background="@color/xui_config_color_gray_7"
-                android:text="直播信息:"/>
+                android:layout_height="80dp"/>
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

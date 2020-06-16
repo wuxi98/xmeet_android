@@ -7,7 +7,7 @@ package com.dds.skywebrtc.inter;
 public interface ISkyEvent {
 
     // 创建房间
-    void createRoom(String room, String roomName, int roomSize);
+    void createRoom(String room, int roomSize);
 
     // 发送单人邀请
     void sendInvite(String room, String userId, boolean audioOnly);

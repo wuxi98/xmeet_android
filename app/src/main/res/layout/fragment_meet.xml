@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@mipmap/bg11111"
+   >
 
 
        <!-- <Button
@@ -15,41 +17,77 @@
         <LinearLayout
             android:id="@+id/lin_are1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:orientation="horizontal">
-                <Button
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+                <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                     android:id="@+id/btn_invite_audio"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    style="@style/Button.Blue"
+                    app:rb_isRadiusAdjustBounds="true"
+                    app:rb_backgroundColor="@color/xui_config_color_light_blue"
+                    style="@style/RoundButton.Auto"
+                    android:textColor="@color/xui_default_round_btn_white_text"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginStart="10dp"
+                    android:textSize="14sp"
+                    app:rb_borderColor="@color/xui_btn_green_normal_color"
                     android:text="语音请求"/>
-                <Button
+                <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                     android:id="@+id/btn_invite_video"
                     android:layout_width="wrap_content"
-                    style="@style/Button.Blue"
+                    style="@style/RoundButton.Blue"
+                    app:rb_isRadiusAdjustBounds="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:textColor="@color/xui_default_round_btn_white_text"
+                    app:rb_backgroundColor="@color/xui_config_color_light_blue"
                     android:layout_height="match_parent"
+                    android:textSize="14sp"
+                    app:rb_borderColor="@color/xui_btn_green_normal_color"
                     android:layout_weight="1"
                     android:text="视频请求"/>
             </LinearLayout>
-            <Button
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                android:layout_marginTop="8dp"
                 android:layout_width="match_parent"
                 android:id="@+id/btn_create_room"
                 android:layout_height="60dp"
-                style="@style/Button.Primary"
+                app:rb_isRadiusAdjustBounds="true"
+                android:textColor="@color/xui_default_round_btn_white_text"
+                android:textSize="14sp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="10dp"
+                app:rb_backgroundColor="@color/xui_btn_green_normal_color"
+                style="@style/RoundButton"
                 android:text="加入多人房间"/>
-                <TextView
-                    android:id="@+id/tv_refresh"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp"
-                    android:gravity="center"
-                    android:text="点击刷新房间列表"
-                    android:textColor="@color/xui_btn_blue_normal_color"/>
+            <TextView
 
+
+                android:layout_marginTop="8dp"
+                android:id="@+id/tv_refresh"
+
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:text="点击刷新房间列表"
+                android:textColor="@color/xui_btn_blue_normal_color"/>
+
+            <com.xuexiang.xui.widget.statelayout.StatefulLayout
+                android:id="@+id/ll_stateful"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="2dp"
+                android:background="#e2e2e2"
+                app:stf_animationEnabled="true"
+                app:stf_inAnimation="@android:anim/slide_in_left"
+                app:stf_outAnimation="@android:anim/slide_out_right">
 
                 <ListView
                     android:id="@+id/lin_room_list"
@@ -58,6 +96,7 @@
                     android:orientation="vertical">
 
                 </ListView>
+            </com.xuexiang.xui.widget.statelayout.StatefulLayout>
 
 
 

@@ -18,19 +18,24 @@ import okhttp3.WebSocketListener;
 public class HttpUtil {
     //web service
     public static final String HOST_URL = "http://39.106.64.220:8080";
-    //
+//    public static final String HOST_URL = "http://192.168.43.39:8080";
+
     public static final String HOST_URL_TEMP = "http://39.106.64.220:5000";
+    public static final String MULTI_SERVER = "http://39.106.64.220:3000";
 
     //弹幕服务器
-    public static final String WEBSOCKET_URL = "ws://39.106.64.220:8899/ws";
+    public static final String WEBSOCKET_URL = "ws://49.235.180.5:8899/ws";
 
     //登录
     public static void loginWithOkHttpSync(String phone, String password, Callback callback) throws IOException {
         OkHttpClient client = OKHttpSingleton.getInstance();
-        RequestBody body = new FormBody.Builder().build();
+        RequestBody body = new FormBody.Builder()
+                .add("phone",phone)
+                .add("password",password)
+                .build();
 
         Request request = new Request.Builder()
-                .url(HOST_URL+"/account/login/"+phone+"/"+password)
+                .url(HOST_URL+"/account/login")
                 .post(body)
                 .build();
         client.newCall(request).enqueue(callback);
@@ -128,7 +133,7 @@ public class HttpUtil {
         OkHttpClient client = OKHttpSingleton.getInstance();
 
         Request request = new Request.Builder()
-                .url(HOST_URL_TEMP+"/roomList")
+                .url(MULTI_SERVER+"/rooms")
                 .get()
                 .build();
         client.newCall(request).enqueue(callback);
@@ -157,6 +162,24 @@ public class HttpUtil {
         Request request = new Request.Builder()
                 .header("Authorization", "Client-ID " + UUID.randomUUID())
                 .url(HOST_URL+"/customer/uploadHeadPic")
+                .post(requestBody)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+
+    //上传直播封面
+    public static void uploadPage(String path, String fileName, int roomId, okhttp3.Callback callback){
+        OkHttpClient client = OKHttpSingleton.getInstance();
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", fileName,
+                        RequestBody.create(MediaType.parse("multipart/form-data"), new File(path)))
+                .addFormDataPart("roomId", ""+roomId)
+                .build();
+        Request request = new Request.Builder()
+                .header("Authorization", "Client-ID " + UUID.randomUUID())
+                .url(HOST_URL+"/liveRoom/uploadPage")
                 .post(requestBody)
                 .build();
         client.newCall(request).enqueue(callback);
@@ -278,6 +301,20 @@ public class HttpUtil {
         Request request = new Request.Builder()
                 .url(HOST_URL+"/customer/processEnterpriseApply/" +enterpriseId+"/"+phone+"/"+code)
                 .post(new FormBody.Builder().build())
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    //修改直播公告
+    public static void updateLiveNotice(int roomId, String msg, Callback callback){
+        OkHttpClient client = OKHttpSingleton.getInstance();
+        FormBody body = new FormBody.Builder()
+                .add("roomId", "" + roomId)
+                .add("msg", msg)
+                .build();
+        Request request = new Request.Builder()
+                .url(HOST_URL+"/liveRoom/updateNotice")
+                .post(body)
                 .build();
         client.newCall(request).enqueue(callback);
     }

@@ -202,6 +202,7 @@ public class LoginActivity extends BaseActivity {
                         } else {
                             try {
                                 LogUtil.d(LoginActivity.class,"当前位置 -- > case button_login");
+                                LogUtil.d(LoginActivity.class,"userName="+username+",password="+password);
                                 loginWithOkHttp(username, password);
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -260,10 +261,7 @@ public class LoginActivity extends BaseActivity {
                     LogUtil.e(LoginActivity.class,"onFailure -->"+e.getMessage());
                 }
 
-
-                LogUtil.d(LoginActivity.class,"e->");
                 e.printStackTrace();
-                LogUtil.d(LoginActivity.class,"当前位置 -- > loginWithOkHttpSync -->onFailure");
             }
 
             @Override
@@ -287,7 +285,7 @@ public class LoginActivity extends BaseActivity {
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            ToastUtil.normal(data.getMessage());
+                                            ToastUtil.normal("账号或密码错误！");
                                         }
                                     });
                                 }

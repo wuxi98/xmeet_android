@@ -1,17 +1,9 @@
 package cn.nchu.wuxi.xlivemeet.fragment;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
@@ -23,31 +15,22 @@ import androidx.recyclerview.widget.SortedList;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.stfalcon.chatkit.commons.ImageLoader;
-import com.stfalcon.chatkit.dialogs.DialogsList;
-import com.stfalcon.chatkit.dialogs.DialogsListAdapter;
-import com.xuexiang.xaop.util.Strings;
-import com.xuexiang.xui.utils.WidgetUtils;
 import com.xuexiang.xui.widget.searchview.MaterialSearchView;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
-import cc.fussen.cache.Cache;
 import cn.nchu.wuxi.xlivemeet.R;
 import cn.nchu.wuxi.xlivemeet.XMeetApp;
 import cn.nchu.wuxi.xlivemeet.activity.ChatActivity;
 import cn.nchu.wuxi.xlivemeet.activity.MainActivity;
 import cn.nchu.wuxi.xlivemeet.activity.SearchViewActivity;
-import cn.nchu.wuxi.xlivemeet.activity.UserInfoActivity;
 import cn.nchu.wuxi.xlivemeet.adpter.MessageAdapter;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.Author;
-import cn.nchu.wuxi.xlivemeet.adpter.entity.DefaultDialog;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.MyMessage;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.TCustomer;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.Message;
@@ -55,20 +38,20 @@ import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.RealMessage;
 import cn.nchu.wuxi.xlivemeet.adpter.viewholder.SortedListCallback;
 import cn.nchu.wuxi.xlivemeet.bean.JsonReturn;
 import cn.nchu.wuxi.xlivemeet.core.BaseFragment;
+import cn.nchu.wuxi.xlivemeet.core.chat.ChatSocketListener;
 import cn.nchu.wuxi.xlivemeet.core.chat.ChatWebSocketListener;
 import cn.nchu.wuxi.xlivemeet.core.chat.ChatWsManager;
-import cn.nchu.wuxi.xlivemeet.core.chat.MsgListViewEvent;
+import cn.nchu.wuxi.xlivemeet.core.chat.inte.MsgListViewEvent;
+import cn.nchu.wuxi.xlivemeet.core.chat.inte.MsgListViewEvent2;
 import cn.nchu.wuxi.xlivemeet.utils.ACache;
 import cn.nchu.wuxi.xlivemeet.utils.HttpUtil;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
-import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.WebSocket;
-import okhttp3.WebSocketListener;
 
-public class MessageFragment extends BaseFragment implements MsgListViewEvent {
+public class MessageFragment extends BaseFragment implements MsgListViewEvent, MsgListViewEvent2 {
 
     //@BindView(R.id.search_view)
     MaterialSearchView mSearchView;
@@ -91,6 +74,7 @@ public class MessageFragment extends BaseFragment implements MsgListViewEvent {
     private WebSocket socket;
     private SharedPreferences sp;
     private String phone;
+    private ChatSocketListener chatSocketListener;
 
     @Override
     protected void init() {
@@ -131,7 +115,9 @@ public class MessageFragment extends BaseFragment implements MsgListViewEvent {
         XMeetApp.getInstance().setMessageList(msgs);
 
         mWebSocketListener = ChatWsManager.getInstance().getListener();
-        mWebSocketListener.setMsgListViewEvent(this);
+        if (null != mWebSocketListener) mWebSocketListener.setMsgListViewEvent(this);
+        chatSocketListener = ChatWsManager.getInstance().getWebSocket();
+        if (null != chatSocketListener) chatSocketListener.setMsgListViewEvent(this);
     }
 
     private void initViews() {
@@ -239,6 +225,11 @@ public class MessageFragment extends BaseFragment implements MsgListViewEvent {
             }
         });
 
+    }
+
+    @Override
+    public void onOpen(ChatSocketListener socket) {
+        chatSocketListener = socket;
     }
 
     /**

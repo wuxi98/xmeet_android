@@ -14,13 +14,18 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.dds.skywebrtc.SkyEngineKit;
 import com.xuexiang.xui.widget.actionbar.TitleBar;
 import com.xuexiang.xui.widget.textview.supertextview.SuperTextView;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.nchu.wuxi.xlivemeet.R;
+import cn.nchu.wuxi.xlivemeet.XMeetApp;
+import cn.nchu.wuxi.xlivemeet.adpter.entity.Author;
 import cn.nchu.wuxi.xlivemeet.core.BaseActivity;
+import cn.nchu.wuxi.xlivemeet.webrtc.voip.CallSingleActivity;
+import cn.nchu.wuxi.xlivemeet.webrtc.voip.VoipEvent;
 
 public class UserInfoActivity extends BaseActivity {
     private String phone;
@@ -98,8 +103,10 @@ public class UserInfoActivity extends BaseActivity {
                 });
     }
 
-    @OnClick(R.id.stv_to_chat)
+    @OnClick({R.id.stv_to_chat,R.id.stv_to_video,R.id.stv_to_audio})
     void openActivity(View view){
+        Author user = new Author(phone,userName,headUrl);
+        XMeetApp.getInstance().setCallUser(user);
         switch (view.getId()){
             case R.id.stv_to_chat:
                 Intent intent = new Intent(this, ChatActivity.class);
@@ -107,6 +114,15 @@ public class UserInfoActivity extends BaseActivity {
                 intent.putExtra("phone",phone);
                 intent.putExtra("headUrl",headUrl);
                 startActivityForResult(intent,1);
+                break;
+            case R.id.stv_to_audio:
+                SkyEngineKit.init(new VoipEvent());
+                CallSingleActivity.openActivity(this, phone, true, true);
+                break;
+            case R.id.stv_to_video:
+                SkyEngineKit.init(new VoipEvent());
+                CallSingleActivity.openActivity(this, phone, true, false);
+                break;
         }
     }
 }

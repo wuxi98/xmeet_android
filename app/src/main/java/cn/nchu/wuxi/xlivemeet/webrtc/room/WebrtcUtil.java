@@ -17,7 +17,7 @@ import com.dds.webrtclib.ws.IConnectEvent;
 public class WebrtcUtil {
 
 
-    public static final String HOST = "47.93.186.97";
+    public static final String HOST = "39.106.64.220";
 
     // turn and stun
     private static MyIceServer[] iceServers = {
@@ -26,17 +26,18 @@ public class WebrtcUtil {
             // 测试地址1
             new MyIceServer("stun:" + HOST + ":3478?transport=udp"),
             new MyIceServer("turn:" + HOST + ":3478?transport=udp",
-                    "ddssingsong",
+                    "wuxi",
                     "123456"),
             new MyIceServer("turn:" + HOST + ":3478?transport=tcp",
-                    "ddssingsong",
+                    "wuxi",
                     "123456"),
     };
 
     // signalling
-    private static String WSS = "wss://" + HOST + "/wss";
+//    private static String WSS = "wss://" + HOST + "/wss";
     //本地测试信令地址
-    // private static String WSS = "ws://192.168.1.138:3000";
+     private static String WSS = "ws://39.106.64.220:3000/ws";
+//     private static String WSS = "ws://192.168.43.39:3000/ws";
 
     // one to one
     public static void callSingle(Activity activity, String wss, String roomId, boolean videoEnable) {

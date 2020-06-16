@@ -26,9 +26,12 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.xuexiang.xui.widget.dialog.DialogLoader;
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog;
 import com.xuexiang.xui.widget.dialog.strategy.InputInfo;
+import com.xuexiang.xui.widget.statelayout.StatefulLayout;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import cn.nchu.wuxi.xlivemeet.R;
@@ -37,18 +40,19 @@ import cn.nchu.wuxi.xlivemeet.activity.EnterpriseManageActivity;
 import cn.nchu.wuxi.xlivemeet.adpter.MeetRoomAdapter;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.Author;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.RoomInfo;
+import cn.nchu.wuxi.xlivemeet.adpter.entity.SimpleRoomInfo;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.TCustomer;
 import cn.nchu.wuxi.xlivemeet.bean.JsonReturn;
 import cn.nchu.wuxi.xlivemeet.core.BaseFragment;
 import cn.nchu.wuxi.xlivemeet.utils.HttpUtil;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
 import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
-import cn.nchu.wuxi.xlivemeet.webrtc.Utils;
+
 //import cn.nchu.wuxi.xlivemeet.webrtc.room.WebrtcUtil;
 import cn.nchu.wuxi.xlivemeet.webrtc.room.WebrtcUtil;
 import cn.nchu.wuxi.xlivemeet.webrtc.socket.IUserState;
 import cn.nchu.wuxi.xlivemeet.webrtc.socket.SocketManager;
-import cn.nchu.wuxi.xlivemeet.webrtc.voip.CallMultiActivity;
+
 import cn.nchu.wuxi.xlivemeet.webrtc.voip.CallSingleActivity;
 import cn.nchu.wuxi.xlivemeet.webrtc.voip.VoipEvent;
 import okhttp3.Call;
@@ -73,12 +77,15 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
 //    Button btn_create_room;
     @BindView(R.id.tv_refresh)
     TextView tv_refresh;
+    @BindView(R.id.ll_stateful)
+    StatefulLayout mStatefulLayout;
 
     private FragmentActivity context;
     private SharedPreferences sp;
     private String phone;
-    private List<RoomInfo> rooms;
+    private List<SimpleRoomInfo> rooms;
     private Handler handler = new Handler(Looper.getMainLooper());
+    private Handler toastHandler = new Handler(Looper.getMainLooper());;
 
     @Override
     protected int getLayoutId() {
@@ -109,7 +116,7 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
         tv_refresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ToastUtil.normal("刷新");
+                mStatefulLayout.showLoading();
                 getRoomList();
             }
         });
@@ -141,28 +148,19 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String s = response.body().string();
+
                 getActivity().runOnUiThread(new Runnable() {
-                    @RequiresApi(api = Build.VERSION_CODES.N)
                     @Override
                     public void run() {
-                        JsonReturn<RoomInfo> res = new Gson().fromJson(s, new TypeToken<JsonReturn<RoomInfo>>(){}.getType());
-                        LogUtil.e(MeetFragment.class,s);
-                        LogUtil.e(MeetFragment.class,res.getData().toString());
-                        if(res.isSuccess()){
-                            rooms = res.getData();
-//                            List<String> list = new ArrayList<>();
-//                            data.forEach(e->list.add(e.getRoomName()));
-//                            ArrayAdapter<String> adapter = new ArrayAdapter<String>(context,android.R.layout.simple_list_item_1,list);//新建并配置ArrayAapeter
 
-
+                       // LogUtil.d(MeetFragment.class,"string->"+s);
+                        rooms = new Gson().fromJson(s, new TypeToken<List<SimpleRoomInfo>>(){}.getType());
+                       // LogUtil.d(MeetFragment.class,"list->"+rooms.get(0).toString());
                             lin_room_list.setAdapter(new MeetRoomAdapter(context,R.layout.meet_room_info_item,rooms));
+                            if (rooms.size() == 0) mStatefulLayout.showEmpty();
+                            else mStatefulLayout.showContent();
 
-                            //lin_room_list.setAdapter(adapter);
-                        }
-                        else {
 
-                            LogUtil.i(EnterpriseManageActivity.class,"请求会议室信息失败");
-                        }
                     }
                 });
             }
@@ -170,7 +168,7 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
     }
 
     // 拨打语音
-    public static void call(Context context,String targetPhone) {
+    public void call(Context _context,String targetPhone) {
         HttpUtil.searchUser(targetPhone, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -180,9 +178,9 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String s = response.body().string();
-//                context.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         JsonReturn<TCustomer> res = new Gson().fromJson(s,new TypeToken<JsonReturn<TCustomer>>(){}.getType());
                         if (res.isSuccess()){
                             if(res.getData().size() == 0){
@@ -193,7 +191,7 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                                 Author user = new Author(item.getPhone(),item.getNickName(),item.getHeadUrl());
                                 XMeetApp.getInstance().setCallUser(user);
                                 SkyEngineKit.init(new VoipEvent());
-                                CallSingleActivity.openActivity(context, targetPhone, true, true);
+                                CallSingleActivity.openActivity(_context, targetPhone, true, true);
                             }
                         }else {
                             LogUtil.i(MeetFragment.class,"查找用户失败");
@@ -201,14 +199,14 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                         }
                     }
                 });
-//            }
-//        });
+            }
+        });
 
 
     }
 
     // 拨打视频
-    public static void callVideo(Context context,String targetPhone) {
+    public void callVideo(Context _context,String targetPhone) {
         HttpUtil.searchUser(targetPhone, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -218,12 +216,13 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String s = response.body().string();
-//                context.runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
+                context.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
                         JsonReturn<TCustomer> res = new Gson().fromJson(s,new TypeToken<JsonReturn<TCustomer>>(){}.getType());
                         if (res.isSuccess()){
                             if(res.getData().size() == 0){
+
                                 ToastUtil.normal("不存在该用户");
                             }
                             else {
@@ -231,7 +230,7 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                                 Author user = new Author(item.getPhone(),item.getNickName(),item.getHeadUrl());
                                 XMeetApp.getInstance().setCallUser(user);
                                 SkyEngineKit.init(new VoipEvent());
-                                CallSingleActivity.openActivity(context, targetPhone, true, false);
+                                CallSingleActivity.openActivity(_context, targetPhone, true, false);
                             }
                         }else {
                             LogUtil.i(MeetFragment.class,"查找用户失败");
@@ -239,8 +238,8 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                         }
                     }
                 });
-//            }
-//        });
+            }
+        });
 
     }
 
@@ -260,10 +259,10 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                 showDialog("请输入对方手机号",new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
                         if (dialogInterface instanceof MaterialDialog) {
-                            String s = ((MaterialDialog) dialogInterface).getInputEditText()
-                                    .getText().toString();
-                            ToastUtil.normal("你输入了:" + s);
+                            String s = ((MaterialDialog) dialogInterface).getInputEditText().getText().toString();
+                           // ToastUtil.normal("你输入了:" + s);
                             callVideo(context,s);
                         }
                     }
@@ -273,10 +272,10 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                 showDialog("请输入对方手机号",new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
                         if (dialogInterface instanceof MaterialDialog) {
-                            String s = ((MaterialDialog) dialogInterface).getInputEditText()
-                                    .getText().toString();
-                            ToastUtil.normal("你输入了:" + s);
+                            String s = ((MaterialDialog) dialogInterface).getInputEditText().getText().toString();
+
                             call(context,s);
                         }
                     }
@@ -286,10 +285,11 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
                 showDialog("请输入房间号",new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
                         if (dialogInterface instanceof MaterialDialog) {
                             String s = ((MaterialDialog) dialogInterface).getInputEditText()
                                     .getText().toString();
-                           // ToastUtil.normal("你输入了:" + s);
+                            ToastUtil.normal("你输入了:" + s);
                             createRoom(s);
                         }
                     }
@@ -333,10 +333,10 @@ public class MeetFragment extends BaseFragment implements View.OnClickListener, 
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        RoomInfo room =rooms.get(i);
-        ToastUtil.normal(room.getRoomId());
-        SkyEngineKit.init(new VoipEvent());
-        CallMultiActivity.openActivityWithJoin(context,room.getRoomId(),true,false);
+        SimpleRoomInfo room =rooms.get(i);
+        WebrtcUtil.call(context,"", room.getRoomId());
+       // SkyEngineKit.init(new VoipEvent());
+//        CallMultiActivity.openActivityWithJoin(context,room.getRoomId(),true,false);
     }
 
     @Override

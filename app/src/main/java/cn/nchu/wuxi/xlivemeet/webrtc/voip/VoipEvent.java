@@ -22,8 +22,8 @@ public class VoipEvent implements ISkyEvent {
     }
 
     @Override
-    public void createRoom(String room,String roomName, int roomSize) {
-        SocketManager.getInstance().createRoom(room, roomName, roomSize);
+    public void createRoom(String room, int roomSize) {
+        SocketManager.getInstance().createRoom(room, roomSize);
     }
 
     @Override

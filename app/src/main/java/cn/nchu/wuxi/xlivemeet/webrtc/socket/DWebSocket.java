@@ -270,13 +270,13 @@ public class DWebSocket extends WebSocketClient {
     /**
      * ------------------------------发送消息----------------------------------------
      */
-    public void createRoom(String room, String roomName, int roomSize, String myId) {
+    public void createRoom(String room, int roomSize, String myId) {
         Map<String, Object> map = new HashMap<>();
         map.put("eventName", "__create");
 
         Map<String, Object> childMap = new HashMap<>();
         childMap.put("room", room);
-        childMap.put("roomName", roomName);
+        childMap.put("roomName", room);
         childMap.put("roomSize", roomSize);
         childMap.put("userID", myId);
 

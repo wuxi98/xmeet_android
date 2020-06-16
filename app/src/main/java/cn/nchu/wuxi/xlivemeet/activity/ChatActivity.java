@@ -2,9 +2,11 @@ package cn.nchu.wuxi.xlivemeet.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.view.View;
+import android.view.KeyEvent;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.SortedList;
@@ -15,36 +17,35 @@ import com.stfalcon.chatkit.commons.ImageLoader;
 import com.stfalcon.chatkit.messages.MessageInput;
 import com.stfalcon.chatkit.messages.MessagesList;
 import com.stfalcon.chatkit.messages.MessagesListAdapter;
-import com.xuexiang.xaop.XAOP;
 import com.xuexiang.xui.widget.actionbar.TitleBar;
 
-import java.io.File;
+import org.java_websocket.enums.ReadyState;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
-import cc.fussen.cache.Cache;
 import cn.nchu.wuxi.xlivemeet.R;
 import cn.nchu.wuxi.xlivemeet.XMeetApp;
-import cn.nchu.wuxi.xlivemeet.adpter.MessageAdapter;
-import cn.nchu.wuxi.xlivemeet.adpter.MyMessagesListAdapter;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.Author;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.MyMessage;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.TCustomer;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.Message;
 import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.RealMessage;
 import cn.nchu.wuxi.xlivemeet.core.BaseActivity;
-import cn.nchu.wuxi.xlivemeet.core.chat.ChatViewEvent;
+import cn.nchu.wuxi.xlivemeet.core.chat.ChatSocketListener;
+import cn.nchu.wuxi.xlivemeet.core.chat.inte.ChatViewEvent;
 import cn.nchu.wuxi.xlivemeet.core.chat.ChatWebSocketListener;
 import cn.nchu.wuxi.xlivemeet.core.chat.ChatWsManager;
+import cn.nchu.wuxi.xlivemeet.core.chat.inte.ChatViewEvent2;
 import cn.nchu.wuxi.xlivemeet.fragment.MessageFragment;
 import cn.nchu.wuxi.xlivemeet.utils.ACache;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
 import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
 import okhttp3.WebSocket;
 
-public class ChatActivity extends BaseActivity implements ChatViewEvent {
+public class ChatActivity extends BaseActivity implements ChatViewEvent, ChatViewEvent2 {
 
     @BindView(R.id.tb_chat_view)
     TitleBar tb_chat_view;
@@ -72,6 +73,7 @@ public class ChatActivity extends BaseActivity implements ChatViewEvent {
     private List<Message> currentMessageRecord;
     private ChatWebSocketListener mWebSocketListener;
     private WebSocket socket;
+    private ChatSocketListener chatSocketListener;
 
     @Override
     public int getContentViewResId() {
@@ -124,8 +126,10 @@ public class ChatActivity extends BaseActivity implements ChatViewEvent {
 
 
         mWebSocketListener = ChatWsManager.getInstance().getListener();
-        mWebSocketListener.setChatViewEvent(this);
+        if (null != mWebSocketListener) mWebSocketListener.setChatViewEvent(this);
         socket = mWebSocketListener.getSocket();
+        chatSocketListener = ChatWsManager.getInstance().getWebSocket();
+        if (null != chatSocketListener) chatSocketListener.setChatViewEvent(this);
 
 
     }
@@ -133,23 +137,7 @@ public class ChatActivity extends BaseActivity implements ChatViewEvent {
     private void initView() {
         //String cacheDir = getCacheDir(this);
         tb_chat_view.setTitle(targetUserName);
-        tb_chat_view.setLeftClickListener(view -> {
-
-            currentFriendMessage.setUnreadMsg(0);
-            if(currentMessageRecord.size() > 0) {
-                currentFriendMessage.setCurrentMsg(currentMessageRecord.get(currentMessageRecord.size() - 1).getText());
-                currentFriendMessage.setCurrentTime(currentMessageRecord.get(currentMessageRecord.size() - 1).getCreatedAt());
-            }
-            if (position != -1){
-                setResult(1);
-                finish();
-            }else {
-                Intent intent = new Intent(ChatActivity.this,MainActivity.class);
-                intent.putExtra("id",2);
-                startActivity(intent);
-            }
-
-        });
+        tb_chat_view.setLeftClickListener(view -> { finishChat(); });
 
         messagesInput.setInputListener(new MessageInput.InputListener() {
             @Override
@@ -159,10 +147,25 @@ public class ChatActivity extends BaseActivity implements ChatViewEvent {
                 Message message = new Message(phone,input.toString(),new Date(),new Author(phone,userName,avatar));
                 currentMessageRecord.add(message);
                 adapter.addToStart(message, true);
-                if (socket != null)
-                    socket.send(new Gson().toJson(new RealMessage(phone,targetPhone,input.toString(),RealMessage.NORMAL_STRING_MESSAGE,System.currentTimeMillis())));
-                else
-                    ToastUtil.normal("您已与服务器断开连接");
+                if (socket != null){
+
+                    String s = new Gson().toJson(new RealMessage(phone,targetPhone,input.toString(),RealMessage.NORMAL_STRING_MESSAGE,System.currentTimeMillis()));
+                    socket.send(s);
+                    LogUtil.d(ChatWebSocketListener.class,"wx-okhttp:send->"+s);
+
+                }
+
+                if(chatSocketListener != null){
+
+                    String s = new Gson().toJson(new RealMessage(phone,targetPhone,input.toString(),RealMessage.NORMAL_STRING_MESSAGE,System.currentTimeMillis()));
+                    while (!chatSocketListener.getReadyState().equals(ReadyState.OPEN)) {
+                    }
+                    chatSocketListener.send(s);
+                    LogUtil.d(ChatSocketListener.class,"wx-java-websocket:send->"+s);
+                }
+
+//                else
+//                    ToastUtil.normal("您已与服务器断开连接");
                 return true;
             }
         });
@@ -191,7 +194,12 @@ public class ChatActivity extends BaseActivity implements ChatViewEvent {
     public void onOpen(WebSocket webSocket) {
         LogUtil.d(ChatActivity.class,"onOpen:websocket = "+webSocket);
         socket = webSocket;
-        LogUtil.d(ChatActivity.class,"onOpen:socket = "+webSocket);
+    }
+
+    @Override
+    public void onOpen(ChatSocketListener socket) {
+        LogUtil.d(ChatSocketListener.class,"wx-java-webSocket-chatView:onOpen:client = "+socket);
+        chatSocketListener = socket;
     }
 
     @Override
@@ -238,5 +246,32 @@ public class ChatActivity extends BaseActivity implements ChatViewEvent {
         LogUtil.d(MessageFragment.class,messages);
         cache.put("messages"+phone,messages);
         super.onDestroy();
+    }
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK:
+                finishChat();
+                break;
+            default:
+                break;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    void finishChat(){
+        currentFriendMessage.setUnreadMsg(0);
+        if(currentMessageRecord.size() > 0) {
+            currentFriendMessage.setCurrentMsg(currentMessageRecord.get(currentMessageRecord.size() - 1).getText());
+            currentFriendMessage.setCurrentTime(currentMessageRecord.get(currentMessageRecord.size() - 1).getCreatedAt());
+        }
+        if (position != -1){
+            setResult(1);
+            finish();
+        }else {
+            Intent intent = new Intent(ChatActivity.this,MainActivity.class);
+            intent.putExtra("id",2);
+            startActivity(intent);
+        }
     }
 }

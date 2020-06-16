@@ -88,7 +88,7 @@ public class SearchViewActivity extends BaseActivity implements RecyclerViewHold
         mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                SnackbarUtils.Long(mSearchView, "Query: " + query).show();
+               // SnackbarUtils.Long(mSearchView, "Query: " + query).show();
                 searchUser(query);
                 return false;
             }

@@ -58,7 +58,7 @@ public class LiveFragment extends BaseFragment implements OnRefreshListener{
 
     private ClassicsHeader mClassicsHeader;
     private Drawable mDrawableProgress;
-    private Activity context;
+    private FragmentActivity context;
     private String rtmpUrl;
     private int enterpriseId;
 
@@ -136,7 +136,7 @@ public class LiveFragment extends BaseFragment implements OnRefreshListener{
                               //  LogUtil.e(LiveFragment.class,res.toString());
                                 if (res.getData().size() == 0) mStatefulLayout.showEmpty();
                                 else mStatefulLayout.showContent();
-                                LiveRoomAdapter liveRoomAdapter = new LiveRoomAdapter(res.getData());
+                                LiveRoomAdapter liveRoomAdapter = new LiveRoomAdapter(context,res.getData());
                                 liveRoomAdapter.setRecyclerItemClickListener(new LiveRoomAdapter.OnRecyclerItemClickListener() {
                                     @Override
                                     public void onItemClick(TLiveRome tLiveRome) {
@@ -146,6 +146,7 @@ public class LiveFragment extends BaseFragment implements OnRefreshListener{
 //用Bundle携带数据
                                         Bundle bundle=new Bundle();
 //传递name参数为tinyphp
+                                        bundle.putString("ownerPhone",tLiveRome.getOwnerPhone());
                                         bundle.putInt("roomId", tLiveRome.getRomeId());
                                         bundle.putString("roomOwnerName", tLiveRome.getOwnerName());
                                         bundle.putString("roomInfo", tLiveRome.getContent());

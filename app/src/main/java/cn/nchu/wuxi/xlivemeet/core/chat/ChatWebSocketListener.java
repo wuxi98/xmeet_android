@@ -5,8 +5,9 @@ import com.google.gson.Gson;
 import javax.annotation.Nullable;
 
 import cn.nchu.wuxi.xlivemeet.adpter.entity.chatkit.RealMessage;
+import cn.nchu.wuxi.xlivemeet.core.chat.inte.ChatViewEvent;
+import cn.nchu.wuxi.xlivemeet.core.chat.inte.MsgListViewEvent;
 import cn.nchu.wuxi.xlivemeet.utils.LogUtil;
-import cn.nchu.wuxi.xlivemeet.utils.ToastUtil;
 import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;

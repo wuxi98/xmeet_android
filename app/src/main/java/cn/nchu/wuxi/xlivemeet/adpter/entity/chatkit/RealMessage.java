@@ -6,6 +6,7 @@ public class RealMessage {
 
     public static final int NORMAL_STRING_MESSAGE = 1001;
     public static final int ON_OPEN = 1000;
+    public static final int HEART_TYPE = 1002;
     private String fromId;
     private String toId;
     private String msg;
